@@ -43,8 +43,8 @@ tipo_pokemon string_to_type(const char* str_type) {
     return (tipo_pokemon)-1;
 }
 
-int comparar_pokemon_por_id(const void* a, const void* b) {
 
+int comparar_pokemon_por_id(const void* a, const void* b) {
     struct pokemon* p1 = *(struct pokemon**)a;
     struct pokemon* p2 = *(struct pokemon**)b;
 
@@ -53,8 +53,8 @@ int comparar_pokemon_por_id(const void* a, const void* b) {
     return 0;
 }
 
-int comparar_pokemon_por_nombre(const void* a, const void* b){
 
+int comparar_pokemon_por_nombre(const void* a, const void* b){
     struct pokemon* p1 = *(struct pokemon**)a;
     struct pokemon* p2 = *(struct pokemon**)b;
 
@@ -63,15 +63,15 @@ int comparar_pokemon_por_nombre(const void* a, const void* b){
     return strcmp(nombre1, nombre2);
 }
 
-void swap_pokemon_pointers(struct pokemon** a, struct pokemon** b) {
 
+void swap_pokemon_pointers(struct pokemon** a, struct pokemon** b) {
     struct pokemon* temp = *a;
     *a = *b;
     *b = temp;
 }
 
-void bubble_sort(struct pokemon** arr, size_t n, int (*comparador)(const void* , const void* )) {
 
+void bubble_sort(struct pokemon** arr, size_t n, int (*comparador)(const void* , const void* )) {
     if (n <= 1) return;
 
     bool swapped;
@@ -89,8 +89,8 @@ void bubble_sort(struct pokemon** arr, size_t n, int (*comparador)(const void* ,
     }
 }
 
-pokedex_t *pokedex_abrir(const char *archivo){
 
+pokedex_t *pokedex_abrir(const char *archivo){
     FILE* file = fopen(archivo, "r");
     if(!file){
         perror("Error al abrir el archivo");
@@ -124,7 +124,6 @@ pokedex_t *pokedex_abrir(const char *archivo){
 
 
     while(fgets(line, sizeof(line), file) != NULL) {
-        
         line_number++;
 
         char* ptr = line;
@@ -280,7 +279,134 @@ pokedex_t *pokedex_abrir(const char *archivo){
     }
 
     return pokedex;
-    
-
 }
 
+
+unsigned pokedex_cantidad_pokemones(pokedex_t *pokedex) {
+    if (pokedex == NULL) {
+        return 0;
+    }
+
+    return (unsigned)pokedex->count;
+}
+
+
+const struct pokemon *pokedex_buscar_pokemon_nombre(pokedex_t *pokedex, const char *nombre) {
+    if (pokedex == NULL || nombre == NULL) {
+        return NULL;
+    }
+
+    if (pokedex->count == 0) {
+        return NULL;
+    }
+
+    int bajo = 0;
+    int alto = (int)pokedex->count - 1;
+
+    while (bajo <= alto) {
+
+        int medio = bajo + (alto - bajo) / 2;
+
+        struct pokemon* pokemon_medio = pokedex->pokemon_list_by_name[medio];
+
+        const char* nombre_medio_ptr = pokemon_medio->nombre ? pokemon_medio->nombre : "";
+        int comparacion = strcmp(nombre, nombre_medio_ptr);
+
+        if (comparacion == 0) {
+            return pokemon_medio;
+        } else if (comparacion < 0) {
+            alto = medio - 1;
+        } else {
+            bajo = medio + 1;
+        }
+    }
+    return NULL;
+}
+
+
+const struct pokemon *pokedex_buscar_pokemon_id(pokedex_t *pokedex, unsigned id) {
+    if (pokedex == NULL) {
+        return NULL;
+    }
+
+    if (pokedex->count == 0) {
+        return NULL;
+    }
+
+    int bajo = 0;
+    int alto = (int)pokedex->count - 1;
+
+    while (bajo <= alto) {
+        int medio = bajo + (alto - bajo) / 2;
+
+        struct pokemon *pokemon_medio = pokedex->pokemon_list_by_id[medio];
+
+        unsigned id_medio = pokemon_medio->id;
+
+        if (id == id_medio) {
+            return pokemon_medio;
+        } else if (id < id_medio) {
+            alto = medio - 1;
+        } else {
+            bajo = medio + 1;
+        }
+    }
+    return NULL;
+}
+
+
+unsigned pokedex_iterar_pokemones(pokedex_t *pokedex, enum modo_iteracion modo, bool (*funcion)(struct pokemon *, void *), void *ctx){
+    if (pokedex == NULL || funcion == NULL) {
+        return 0;
+    }
+
+    struct pokemon **lista_a_iterar = NULL;
+
+    if (modo == ITERAR_ID) {
+        lista_a_iterar = pokedex->pokemon_list_by_id;
+    } else if (modo == ITERAR_NOMBRE) {
+        lista_a_iterar = pokedex->pokemon_list_by_name;
+    } else {
+        return 0;
+    }
+
+    if (lista_a_iterar == NULL) {
+         return 0;
+    }
+
+    unsigned contador_iterados = 0;
+    for (size_t i = 0; i < pokedex->count; i++) {
+
+        struct pokemon *poke_actual = lista_a_iterar[i];
+        contador_iterados++;
+
+        bool continuar = funcion(poke_actual, ctx);
+
+        if (!continuar) {
+            break;
+        }
+    }
+    return contador_iterados;
+}
+
+
+void pokedex_destruir(pokedex_t *pokedex) {
+    if (pokedex == NULL) {
+        return;
+    }
+
+    for (size_t i = 0; i < pokedex->count; i++) {
+        struct pokemon *pokemon_a_liberar = pokedex->pokemon_list_by_id[i];
+
+        if (pokemon_a_liberar != NULL) {
+
+            free((void*)pokemon_a_liberar->nombre);
+            free(pokemon_a_liberar);
+        }
+    }
+
+    free(pokedex->pokemon_list_by_id);
+    free(pokedex->pokemon_list_by_name);
+
+    free(pokedex);
+}
