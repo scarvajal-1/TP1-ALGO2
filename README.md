@@ -2,11 +2,9 @@
 <img width="32px" src="img/algo2.svg">
 </div>
 
-# TDA LISTA
+# Proyecto TP1-Algo2
 
-# ESTO ES UN TEMPLATE, COMPLETAR LO QUE HAGA FALTA, ELIMINAR LO QUE SOBRE (INCLUIDA ESTA LÍNEA)
-
-## Alumno: (Nombre Apellido) - (Padrón) - (Mail)
+## Alumno: (Sebastian Carvajal) - (112652) - (scarvajal@fi.uba.ar)
 
 - Para compilar:
 

@@ -178,7 +178,7 @@ pokedex_t *pokedex_abrir(const char *archivo){
         char temp_type[50];
         unsigned strength = 0, skill = 0, intelligence = 0;
 
-        if(sscanf(ptr, "%49[^;];%u;%u;%u", temp_type, strength, skill, intelligence) != 4){
+        if(sscanf(ptr, "%49[^;];%u;%u;%u", temp_type, &strength, &skill, &intelligence) != 4){
             fprintf(stderr, "Error linea %u: Formato invalido(tipo/stats). Contenido restante: '%s'.\n", line_number, ptr);
             free(dynamic_pokemon_name);
             error_found = true;
@@ -339,7 +339,7 @@ const struct pokemon *pokedex_buscar_pokemon_id(pokedex_t *pokedex, unsigned id)
     while (bajo <= alto) {
         int medio = bajo + (alto - bajo) / 2;
 
-        struct pokemon *pokemon_medio = pokedex->pokemon_list_by_id[medio];
+        struct pokemon* pokemon_medio = pokedex->pokemon_list_by_id[medio];
 
         unsigned id_medio = pokemon_medio->id;
 
@@ -360,7 +360,7 @@ unsigned pokedex_iterar_pokemones(pokedex_t *pokedex, enum modo_iteracion modo, 
         return 0;
     }
 
-    struct pokemon **lista_a_iterar = NULL;
+    struct pokemon** lista_a_iterar = NULL;
 
     if (modo == ITERAR_ID) {
         lista_a_iterar = pokedex->pokemon_list_by_id;
@@ -377,7 +377,7 @@ unsigned pokedex_iterar_pokemones(pokedex_t *pokedex, enum modo_iteracion modo, 
     unsigned contador_iterados = 0;
     for (size_t i = 0; i < pokedex->count; i++) {
 
-        struct pokemon *poke_actual = lista_a_iterar[i];
+        struct pokemon* poke_actual = lista_a_iterar[i];
         contador_iterados++;
 
         bool continuar = funcion(poke_actual, ctx);
@@ -396,7 +396,7 @@ void pokedex_destruir(pokedex_t *pokedex) {
     }
 
     for (size_t i = 0; i < pokedex->count; i++) {
-        struct pokemon *pokemon_a_liberar = pokedex->pokemon_list_by_id[i];
+        struct pokemon* pokemon_a_liberar = pokedex->pokemon_list_by_id[i];
 
         if (pokemon_a_liberar != NULL) {
 
